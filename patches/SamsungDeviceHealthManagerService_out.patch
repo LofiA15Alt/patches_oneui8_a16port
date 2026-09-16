@@ -1,0 +1,39 @@
+diff --git a/smali/U1/v.smali b/smali/U1/v.smali
+index be8c7f4..abe1200 100644
+--- a/smali/U1/v.smali
++++ b/smali/U1/v.smali
+@@ -813,7 +813,7 @@
+ 
+     if-eqz v6, :cond_4
+ 
+-    const-string v6, "siop_b7s_s5e9955"
++    const-string v6, "siop_a14_exynos850"
+ 
+     sput-object v6, LU1/v;->b:Ljava/lang/String;
+ 
+diff --git a/smali/r1/c.smali b/smali/r1/c.smali
+index 82d47a8..bb172bb 100644
+--- a/smali/r1/c.smali
++++ b/smali/r1/c.smali
+@@ -170,7 +170,7 @@
+     sput-object v1, Lr1/c;->b:Ljava/lang/String;
+ 
+     :cond_1
+-    const-string v1, "dvfs_policy_default"
++    const-string v1, "dvfs_policy_s5e3830_xx"
+ 
+     sput-object v1, Lr1/c;->c:Ljava/lang/String;
+ 
+diff --git a/smali/z1/e.smali b/smali/z1/e.smali
+index 7a87e1a..9a10eb5 100644
+--- a/smali/z1/e.smali
++++ b/smali/z1/e.smali
+@@ -95,7 +95,7 @@
+ 
+     iput-object p1, p0, Lz1/e;->b:Ljava/lang/String;
+ 
+-    const-string p1, "dvfs_policy_default"
++    const-string p1, "dvfs_policy_s5e3830_xx"
+ 
+     iput-object p1, p0, Lz1/e;->c:Ljava/lang/String;
+ 

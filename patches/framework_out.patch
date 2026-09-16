@@ -1,0 +1,2382 @@
+diff --git a/smali/android/app/Instrumentation.smali b/smali/android/app/Instrumentation.smali
+index 82c86f26..1d6549d3 100644
+--- a/smali/android/app/Instrumentation.smali
++++ b/smali/android/app/Instrumentation.smali
+@@ -746,6 +746,8 @@
+ 
+     invoke-virtual {p0, p1}, Landroid/app/Application;->attach(Landroid/content/Context;)V
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/KnoxPatchHooks;->init(Landroid/content/Context;)V
++
+     return-object p0
+ .end method
+ 
+@@ -4336,6 +4338,8 @@
+ 
+     invoke-virtual {p0, p3}, Landroid/app/Application;->attach(Landroid/content/Context;)V
+ 
++    invoke-static {p3}, Lio/mesalabs/unica/KnoxPatchHooks;->init(Landroid/content/Context;)V
++
+     return-object p0
+ .end method
+ 
+diff --git a/smali_classes3/android/os/SemSystemProperties.smali b/smali_classes3/android/os/SemSystemProperties.smali
+index d40468a0..1238450f 100644
+--- a/smali_classes3/android/os/SemSystemProperties.smali
++++ b/smali_classes3/android/os/SemSystemProperties.smali
+@@ -45,6 +45,15 @@
+ .method public static whitelist getCountryCode()Ljava/lang/String;
+     .locals 2
+ 
++    invoke-static {}, Lio/mesalabs/unica/CscFeatureHooks;->onGetCountryCode()Ljava/lang/String;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    goto :goto_0
++
++    :cond_0
+     const-string/jumbo v0, "ro.csc.country_code"
+ 
+     const-string v1, ""
+@@ -53,6 +62,7 @@
+ 
+     move-result-object v0
+ 
++    :goto_0
+     return-object v0
+ .end method
+ 
+diff --git a/smali_classes3/android/os/SystemProperties.smali b/smali_classes3/android/os/SystemProperties.smali
+index 3af84b7b..7d5d50e4 100644
+--- a/smali_classes3/android/os/SystemProperties.smali
++++ b/smali_classes3/android/os/SystemProperties.smali
+@@ -373,10 +373,19 @@
+ .end method
+ 
+ .method public static whitelist get(Ljava/lang/String;)Ljava/lang/String;
+-    .locals 0
++    .locals 1
+     .annotation runtime Landroid/annotation/SystemApi;
+     .end annotation
+ 
++    invoke-static {p0}, Lio/mesalabs/unica/KnoxPatchHooks;->onSystemPropertiesGet(Ljava/lang/String;)Ljava/lang/String;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    return-object v0
++
++    :cond_0
+     invoke-static {p0}, Landroid/os/SystemProperties;->native_get(Ljava/lang/String;)Ljava/lang/String;
+ 
+     move-result-object p0
+@@ -385,10 +394,19 @@
+ .end method
+ 
+ .method public static whitelist get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+-    .locals 0
++    .locals 1
+     .annotation runtime Landroid/annotation/SystemApi;
+     .end annotation
+ 
++    invoke-static {p0}, Lio/mesalabs/unica/KnoxPatchHooks;->onSystemPropertiesGet(Ljava/lang/String;)Ljava/lang/String;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    return-object v0
++
++    :cond_0
+     invoke-static {p0, p1}, Landroid/os/SystemProperties;->native_get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ 
+     move-result-object p0
+diff --git a/smali_classes4/android/view/accessibility/A11yRune.smali b/smali_classes4/android/view/accessibility/A11yRune.smali
+index e59783dd..9f50e0c7 100644
+--- a/smali_classes4/android/view/accessibility/A11yRune.smali
++++ b/smali_classes4/android/view/accessibility/A11yRune.smali
+@@ -147,7 +147,7 @@
+ 
+ # direct methods
+ .method static constructor blacklist <clinit>()V
+-    .locals 4
++    .locals 3
+ 
+     const-string/jumbo v0, "ro.product.first_api_level"
+ 
+@@ -159,50 +159,45 @@
+ 
+     sput v0, Landroid/view/accessibility/A11yRune;->FIRST_API_LEVEL:I
+ 
+-    const/4 v0, 0x1
++    const/4 v0, 0x0
+ 
+     sput-boolean v0, Landroid/view/accessibility/A11yRune;->A11Y_COLOR_BOOL_SUPPORT_DMC_COLORWEAKNESS:Z
+ 
+-    const/4 v1, 0x0
+-
+-    sput-boolean v1, Landroid/view/accessibility/A11yRune;->A11Y_COLOR_BOOL_SUPPORT_COLOR_FILTER_MDNIE_HW:Z
++    sput-boolean v0, Landroid/view/accessibility/A11yRune;->A11Y_COLOR_BOOL_SUPPORT_COLOR_FILTER_MDNIE_HW:Z
+ 
+     invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
+ 
+-    move-result-object v2
++    move-result-object v1
+ 
+-    const-string v3, "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_FOLDABLE_TYPE_FLIP"
++    const-string v2, "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_FOLDABLE_TYPE_FLIP"
+ 
+-    invoke-virtual {v2, v3}, Lcom/samsung/android/feature/SemFloatingFeature;->getBoolean(Ljava/lang/String;)Z
++    invoke-virtual {v1, v2}, Lcom/samsung/android/feature/SemFloatingFeature;->getBoolean(Ljava/lang/String;)Z
+ 
+-    move-result v2
++    move-result v1
+ 
+-    if-eqz v2, :cond_0
++    if-eqz v1, :cond_0
+ 
+     invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
+ 
+-    move-result-object v2
++    move-result-object v1
+ 
+-    const-string v3, "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_SUBDISPLAY_POLICY"
++    const-string v2, "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_SUBDISPLAY_POLICY"
+ 
+-    invoke-virtual {v2, v3}, Lcom/samsung/android/feature/SemFloatingFeature;->getString(Ljava/lang/String;)Ljava/lang/String;
++    invoke-virtual {v1, v2}, Lcom/samsung/android/feature/SemFloatingFeature;->getString(Ljava/lang/String;)Ljava/lang/String;
+ 
+-    move-result-object v2
++    move-result-object v1
+ 
+-    const-string v3, "LARGESCREEN"
++    const-string v2, "LARGESCREEN"
+ 
+-    invoke-virtual {v2, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
++    invoke-virtual {v1, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+ 
+-    move-result v2
++    move-result v1
+ 
+-    if-eqz v2, :cond_0
++    if-eqz v1, :cond_0
+ 
+-    goto :goto_0
++    const/4 v0, 0x1
+ 
+     :cond_0
+-    move v0, v1
+-
+-    :goto_0
+     sput-boolean v0, Landroid/view/accessibility/A11yRune;->A11Y_COMMON_BOOL_SUPPORT_LARGE_COVER_SCREEN_FLIP:Z
+ 
+     const-string v0, "content://com.samsung.accessibility.provider/a11ysettings"
+diff --git a/smali_classes6/com/samsung/android/feature/SemCscFeature.smali b/smali_classes6/com/samsung/android/feature/SemCscFeature.smali
+index 41421590..28f22720 100644
+--- a/smali_classes6/com/samsung/android/feature/SemCscFeature.smali
++++ b/smali_classes6/com/samsung/android/feature/SemCscFeature.smali
+@@ -899,6 +899,19 @@
+ .method private declared-synchronized blacklist get(Ljava/lang/String;)Ljava/lang/String;
+     .locals 2
+ 
++    const-string v0, "CscFeature_VoiceCall_ConfigRecording"
++
++    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_uipatch_csc_0
++
++    const-string v0, "RecordingAllowed"
++
++    return-object v0
++
++    :cond_uipatch_csc_0
+     monitor-enter p0
+ 
+     :try_start_0
+@@ -1873,6 +1886,19 @@
+ .method public whitelist getBoolean(Ljava/lang/String;)Z
+     .locals 4
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/CscFeatureHooks;->onGetBoolean(Ljava/lang/String;)Ljava/lang/Boolean;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
++
++    move-result p0
++
++    return p0
++
++    :cond_0
+     const-string v0, "[getBoolean] tag : "
+ 
+     const/4 v1, 0x0
+@@ -1884,7 +1910,7 @@
+ 
+     sget-boolean v2, Lcom/samsung/android/feature/SemCscFeature;->DEBUG:Z
+ 
+-    if-eqz v2, :cond_0
++    if-eqz v2, :cond_1
+ 
+     const-string v2, "SemCscFeature"
+ 
+@@ -1906,8 +1932,8 @@
+ 
+     invoke-static {v2, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+ 
+-    :cond_0
+-    if-eqz p0, :cond_1
++    :cond_1
++    if-eqz p0, :cond_2
+ 
+     invoke-static {p0}, Ljava/lang/Boolean;->parseBoolean(Ljava/lang/String;)Z
+ 
+@@ -1918,13 +1944,26 @@
+     return p0
+ 
+     :catch_0
+-    :cond_1
++    :cond_2
+     return v1
+ .end method
+ 
+ .method public whitelist getBoolean(Ljava/lang/String;Z)Z
+     .locals 3
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/CscFeatureHooks;->onGetBoolean(Ljava/lang/String;)Ljava/lang/Boolean;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
++
++    move-result p0
++
++    return p0
++
++    :cond_0
+     const-string v0, "[getBoolean] tag : "
+ 
+     :try_start_0
+@@ -1934,7 +1973,7 @@
+ 
+     sget-boolean v1, Lcom/samsung/android/feature/SemCscFeature;->DEBUG:Z
+ 
+-    if-eqz v1, :cond_0
++    if-eqz v1, :cond_1
+ 
+     const-string v1, "SemCscFeature"
+ 
+@@ -1962,8 +2001,8 @@
+ 
+     invoke-static {v1, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+ 
+-    :cond_0
+-    if-eqz p0, :cond_1
++    :cond_1
++    if-eqz p0, :cond_2
+ 
+     invoke-static {p0}, Ljava/lang/Boolean;->parseBoolean(Ljava/lang/String;)Z
+ 
+@@ -1974,7 +2013,7 @@
+     return p0
+ 
+     :catch_0
+-    :cond_1
++    :cond_2
+     return p2
+ .end method
+ 
+@@ -2001,6 +2040,19 @@
+ .method public whitelist getInt(Ljava/lang/String;)I
+     .locals 4
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/CscFeatureHooks;->onGetInt(Ljava/lang/String;)Ljava/lang/Integer;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
++
++    move-result p0
++
++    return p0
++
++    :cond_0
+     const-string v0, "[getInt] tag : "
+ 
+     const/4 v1, -0x1
+@@ -2012,7 +2064,7 @@
+ 
+     sget-boolean v2, Lcom/samsung/android/feature/SemCscFeature;->DEBUG:Z
+ 
+-    if-eqz v2, :cond_0
++    if-eqz v2, :cond_1
+ 
+     const-string v2, "SemCscFeature"
+ 
+@@ -2034,8 +2086,8 @@
+ 
+     invoke-static {v2, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+ 
+-    :cond_0
+-    if-eqz p0, :cond_1
++    :cond_1
++    if-eqz p0, :cond_2
+ 
+     invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+ 
+@@ -2046,13 +2098,26 @@
+     return p0
+ 
+     :catch_0
+-    :cond_1
++    :cond_2
+     return v1
+ .end method
+ 
+ .method public whitelist getInt(Ljava/lang/String;I)I
+     .locals 3
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/CscFeatureHooks;->onGetInt(Ljava/lang/String;)Ljava/lang/Integer;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
++
++    move-result p0
++
++    return p0
++
++    :cond_0
+     const-string v0, "[getInt] tag : "
+ 
+     :try_start_0
+@@ -2062,7 +2127,7 @@
+ 
+     sget-boolean v1, Lcom/samsung/android/feature/SemCscFeature;->DEBUG:Z
+ 
+-    if-eqz v1, :cond_0
++    if-eqz v1, :cond_1
+ 
+     const-string v1, "SemCscFeature"
+ 
+@@ -2090,8 +2155,8 @@
+ 
+     invoke-static {v1, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+ 
+-    :cond_0
+-    if-eqz p0, :cond_1
++    :cond_1
++    if-eqz p0, :cond_2
+ 
+     invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+ 
+@@ -2102,7 +2167,7 @@
+     return p0
+ 
+     :catch_0
+-    :cond_1
++    :cond_2
+     return p2
+ .end method
+ 
+@@ -2169,6 +2234,12 @@
+ .method public whitelist getString(Ljava/lang/String;)Ljava/lang/String;
+     .locals 4
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/CscFeatureHooks;->onGetString(Ljava/lang/String;)Ljava/lang/String;
++
++    move-result-object v0
++
++    if-nez v0, :cond_1
++
+     const-string v0, ""
+ 
+     const-string v1, "[getString] tag : "
+@@ -2217,6 +2288,15 @@
+ .method public whitelist getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+     .locals 3
+ 
++    invoke-static {p1}, Lio/mesalabs/unica/CscFeatureHooks;->onGetString(Ljava/lang/String;)Ljava/lang/String;
++
++    move-result-object v0
++
++    if-eqz v0, :cond_0
++
++    return-object v0
++
++    :cond_0
+     const-string v0, "[getString] tag : "
+ 
+     :try_start_0
+@@ -2226,7 +2306,7 @@
+ 
+     sget-boolean v1, Lcom/samsung/android/feature/SemCscFeature;->DEBUG:Z
+ 
+-    if-eqz v1, :cond_0
++    if-eqz v1, :cond_1
+ 
+     const-string v1, "SemCscFeature"
+ 
+@@ -2256,13 +2336,13 @@
+     :try_end_0
+     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+ 
+-    :cond_0
+-    if-eqz p0, :cond_1
++    :cond_1
++    if-eqz p0, :cond_2
+ 
+     return-object p0
+ 
+     :catch_0
+-    :cond_1
++    :cond_2
+     return-object p2
+ .end method
+ 
+diff --git a/smali_classes6/com/samsung/android/globalactions/util/SystemPropertiesWrapper.smali b/smali_classes6/com/samsung/android/globalactions/util/SystemPropertiesWrapper.smali
+index 89fec408..d54ce404 100644
+--- a/smali_classes6/com/samsung/android/globalactions/util/SystemPropertiesWrapper.smali
++++ b/smali_classes6/com/samsung/android/globalactions/util/SystemPropertiesWrapper.smali
+@@ -63,17 +63,9 @@
+ .end method
+ 
+ .method public blacklist isBrazilianCountryISO()Z
+-    .locals 1
+-
+-    const-string p0, "BR"
+-
+-    invoke-static {}, Landroid/os/SemSystemProperties;->getCountryIso()Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {p0, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
++    .locals 0
+ 
+-    move-result p0
++    const/4 p0, 0x1
+ 
+     return p0
+ .end method
+diff --git a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionData$1.smali b/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionData$1.smali
+deleted file mode 100644
+index 2a8047fd..00000000
+--- a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionData$1.smali
++++ /dev/null
+@@ -1,85 +0,0 @@
+-.class Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;
+-.super Ljava/util/HashMap;
+-.source "PermissionData.java"
+-
+-
+-# annotations
+-.annotation system Ldalvik/annotation/EnclosingClass;
+-    value = Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;
+-.end annotation
+-
+-.annotation system Ldalvik/annotation/InnerClass;
+-    accessFlags = 0x0
+-    name = null
+-.end annotation
+-
+-.annotation system Ldalvik/annotation/Signature;
+-    value = {
+-        "Ljava/util/HashMap<",
+-        "Ljava/lang/Integer;",
+-        "Ljava/lang/Boolean;",
+-        ">;"
+-    }
+-.end annotation
+-
+-
+-# direct methods
+-.method constructor blacklist <init>()V
+-    .locals 3
+-
+-    invoke-direct {p0}, Ljava/util/HashMap;-><init>()V
+-
+-    const/4 v0, 0x0
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    const/4 v1, 0x1
+-
+-    invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+-
+-    move-result-object v2
+-
+-    invoke-virtual {p0, v0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {p0, v0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 v0, 0x29
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {p0, v0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 v0, 0x2a
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {p0, v0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 v0, 0x1a
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {p0, v0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 v0, 0x1b
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {p0, v0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    return-void
+-.end method
+diff --git a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionData.smali b/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionData.smali
+deleted file mode 100644
+index 7b884a19..00000000
+--- a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionData.smali
++++ /dev/null
+@@ -1,330 +0,0 @@
+-.class public Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;
+-.super Ljava/lang/Object;
+-.source "PermissionData.java"
+-
+-
+-# static fields
+-.field private static final blacklist MIN_MS_SEC:J = 0xea60L
+-
+-.field private static final blacklist isPermissionGroupForExcessiveUsage:Ljava/util/HashMap;
+-    .annotation system Ldalvik/annotation/Signature;
+-        value = {
+-            "Ljava/util/HashMap<",
+-            "Ljava/lang/Integer;",
+-            "Ljava/lang/Boolean;",
+-            ">;"
+-        }
+-    .end annotation
+-.end field
+-
+-
+-# instance fields
+-.field private blacklist mAccessTimeMilliSeconds:J
+-
+-.field private blacklist mAccessTimeMinute:J
+-
+-.field private blacklist mOp:I
+-
+-.field private blacklist mPackageName:Ljava/lang/String;
+-
+-.field private blacklist mState:I
+-
+-.field private blacklist mUid:I
+-
+-
+-# direct methods
+-.method static constructor blacklist <clinit>()V
+-    .locals 1
+-
+-    new-instance v0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;
+-
+-    invoke-direct {v0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData$1;-><init>()V
+-
+-    sput-object v0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->isPermissionGroupForExcessiveUsage:Ljava/util/HashMap;
+-
+-    return-void
+-.end method
+-
+-.method public constructor blacklist <init>(IILjava/lang/String;I)V
+-    .locals 0
+-
+-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+-
+-    iput p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    iput p2, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mUid:I
+-
+-    iput-object p3, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mPackageName:Ljava/lang/String;
+-
+-    iput p4, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mState:I
+-
+-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+-
+-    move-result-wide p1
+-
+-    iput-wide p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMilliSeconds:J
+-
+-    const-wide/32 p3, 0xea60
+-
+-    div-long/2addr p1, p3
+-
+-    iput-wide p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMinute:J
+-
+-    return-void
+-.end method
+-
+-.method private blacklist isOpExcessive(I)Z
+-    .locals 0
+-
+-    sget-object p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->isPermissionGroupForExcessiveUsage:Ljava/util/HashMap;
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+-
+-    move-result p0
+-
+-    return p0
+-.end method
+-
+-
+-# virtual methods
+-.method public whitelist test-api equals(Ljava/lang/Object;)Z
+-    .locals 6
+-
+-    const/4 v0, 0x1
+-
+-    if-ne p0, p1, :cond_0
+-
+-    return v0
+-
+-    :cond_0
+-    const/4 v1, 0x0
+-
+-    if-eqz p1, :cond_4
+-
+-    invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+-
+-    move-result-object v2
+-
+-    invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+-
+-    move-result-object v3
+-
+-    if-eq v2, v3, :cond_1
+-
+-    goto :goto_2
+-
+-    :cond_1
+-    check-cast p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;
+-
+-    iget v2, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    invoke-direct {p0, v2}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->isOpExcessive(I)Z
+-
+-    move-result v2
+-
+-    if-eqz v2, :cond_2
+-
+-    iget-wide v2, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMilliSeconds:J
+-
+-    iget-wide v4, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMilliSeconds:J
+-
+-    cmp-long v2, v2, v4
+-
+-    if-nez v2, :cond_3
+-
+-    goto :goto_0
+-
+-    :cond_2
+-    iget-wide v2, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMinute:J
+-
+-    iget-wide v4, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMinute:J
+-
+-    cmp-long v2, v2, v4
+-
+-    if-nez v2, :cond_3
+-
+-    :goto_0
+-    move v2, v0
+-
+-    goto :goto_1
+-
+-    :cond_3
+-    move v2, v1
+-
+-    :goto_1
+-    iget v3, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    iget v4, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    if-ne v3, v4, :cond_4
+-
+-    iget v3, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mUid:I
+-
+-    iget v4, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mUid:I
+-
+-    if-ne v3, v4, :cond_4
+-
+-    iget v3, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mState:I
+-
+-    iget v4, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mState:I
+-
+-    if-ne v3, v4, :cond_4
+-
+-    if-eqz v2, :cond_4
+-
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mPackageName:Ljava/lang/String;
+-
+-    iget-object p1, p1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mPackageName:Ljava/lang/String;
+-
+-    invoke-virtual {p0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+-
+-    move-result p0
+-
+-    if-eqz p0, :cond_4
+-
+-    return v0
+-
+-    :cond_4
+-    :goto_2
+-    return v1
+-.end method
+-
+-.method public blacklist getAccessTime()J
+-    .locals 2
+-
+-    iget-wide v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMilliSeconds:J
+-
+-    return-wide v0
+-.end method
+-
+-.method public blacklist getOp()I
+-    .locals 0
+-
+-    iget p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    return p0
+-.end method
+-
+-.method public blacklist getPackageName()Ljava/lang/String;
+-    .locals 0
+-
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mPackageName:Ljava/lang/String;
+-
+-    return-object p0
+-.end method
+-
+-.method public blacklist getState()I
+-    .locals 0
+-
+-    iget p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mState:I
+-
+-    return p0
+-.end method
+-
+-.method public blacklist getUid()I
+-    .locals 0
+-
+-    iget p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mUid:I
+-
+-    return p0
+-.end method
+-
+-.method public whitelist test-api hashCode()I
+-    .locals 6
+-
+-    iget v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v0
+-
+-    iget v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mUid:I
+-
+-    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v1
+-
+-    iget-object v2, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mPackageName:Ljava/lang/String;
+-
+-    iget v3, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mState:I
+-
+-    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object v3
+-
+-    iget-wide v4, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMinute:J
+-
+-    invoke-static {v4, v5}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+-
+-    move-result-object p0
+-
+-    filled-new-array {v0, v1, v2, v3, p0}, [Ljava/lang/Object;
+-
+-    move-result-object p0
+-
+-    invoke-static {p0}, Ljava/util/Objects;->hash([Ljava/lang/Object;)I
+-
+-    move-result p0
+-
+-    return p0
+-.end method
+-
+-.method public blacklist toContentValues()Landroid/content/ContentValues;
+-    .locals 3
+-
+-    new-instance v0, Landroid/content/ContentValues;
+-
+-    invoke-direct {v0}, Landroid/content/ContentValues;-><init>()V
+-
+-    iget v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mOp:I
+-
+-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+-
+-    move-result-object v1
+-
+-    const-string/jumbo v2, "op"
+-
+-    invoke-virtual {v0, v2, v1}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V
+-
+-    iget v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mUid:I
+-
+-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+-
+-    move-result-object v1
+-
+-    const-string/jumbo v2, "uid"
+-
+-    invoke-virtual {v0, v2, v1}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V
+-
+-    const-string/jumbo v1, "packageName"
+-
+-    iget-object v2, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mPackageName:Ljava/lang/String;
+-
+-    invoke-virtual {v0, v1, v2}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V
+-
+-    iget v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mState:I
+-
+-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+-
+-    move-result-object v1
+-
+-    const-string/jumbo v2, "state"
+-
+-    invoke-virtual {v0, v2, v1}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V
+-
+-    iget-wide v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->mAccessTimeMinute:J
+-
+-    invoke-static {v1, v2}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    const-string v1, "accessTime"
+-
+-    invoke-virtual {v0, v1, p0}, Landroid/content/ContentValues;->put(Ljava/lang/String;Ljava/lang/String;)V
+-
+-    return-object v0
+-.end method
+diff --git a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController$1.smali b/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController$1.smali
+deleted file mode 100644
+index 780f18fd..00000000
+--- a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController$1.smali
++++ /dev/null
+@@ -1,69 +0,0 @@
+-.class Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$1;
+-.super Ljava/lang/Object;
+-.source "PermissionDataController.java"
+-
+-# interfaces
+-.implements Ljava/lang/Runnable;
+-
+-
+-# annotations
+-.annotation system Ldalvik/annotation/EnclosingMethod;
+-    value = Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->flushAsync()V
+-.end annotation
+-
+-.annotation system Ldalvik/annotation/InnerClass;
+-    accessFlags = 0x0
+-    name = null
+-.end annotation
+-
+-
+-# instance fields
+-.field final synthetic blacklist this$0:Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;
+-
+-
+-# direct methods
+-.method constructor blacklist <init>(Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;)V
+-    .locals 0
+-    .annotation system Ldalvik/annotation/MethodParameters;
+-        accessFlags = {
+-            0x8010
+-        }
+-        names = {
+-            null
+-        }
+-    .end annotation
+-
+-    iput-object p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$1;->this$0:Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;
+-
+-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+-
+-    return-void
+-.end method
+-
+-
+-# virtual methods
+-.method public whitelist test-api run()V
+-    .locals 2
+-
+-    :try_start_0
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$1;->this$0:Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;
+-
+-    invoke-virtual {p0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->flush()V
+-    :try_end_0
+-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+-
+-    return-void
+-
+-    :catch_0
+-    move-exception p0
+-
+-    const-string v0, "AI::PermissionDataController"
+-
+-    invoke-virtual {p0}, Ljava/lang/Exception;->getMessage()Ljava/lang/String;
+-
+-    move-result-object v1
+-
+-    invoke-static {v0, v1, p0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+-
+-    return-void
+-.end method
+diff --git a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController$2.smali b/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController$2.smali
+deleted file mode 100644
+index 29810120..00000000
+--- a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController$2.smali
++++ /dev/null
+@@ -1,251 +0,0 @@
+-.class Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;
+-.super Ljava/util/HashMap;
+-.source "PermissionDataController.java"
+-
+-
+-# annotations
+-.annotation system Ldalvik/annotation/EnclosingClass;
+-    value = Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;
+-.end annotation
+-
+-.annotation system Ldalvik/annotation/InnerClass;
+-    accessFlags = 0x0
+-    name = null
+-.end annotation
+-
+-.annotation system Ldalvik/annotation/Signature;
+-    value = {
+-        "Ljava/util/HashMap<",
+-        "Ljava/lang/Integer;",
+-        "Ljava/lang/Boolean;",
+-        ">;"
+-    }
+-.end annotation
+-
+-
+-# instance fields
+-.field final synthetic blacklist this$0:Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;
+-
+-
+-# direct methods
+-.method constructor blacklist <init>(Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;)V
+-    .locals 2
+-    .annotation system Ldalvik/annotation/MethodParameters;
+-        accessFlags = {
+-            0x8010
+-        }
+-        names = {
+-            null
+-        }
+-    .end annotation
+-
+-    iput-object p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->this$0:Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;
+-
+-    invoke-direct {p0}, Ljava/util/HashMap;-><init>()V
+-
+-    const/4 p1, 0x4
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    const/4 v0, 0x1
+-
+-    invoke-static {v0}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+-
+-    move-result-object v1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/4 p1, 0x5
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x3e
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x8
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x9
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x14
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x10
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0xe
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x12
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x39
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x51
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x53
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x55
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x7b
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/4 p1, 0x0
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/4 p1, 0x2
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0xa
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x29
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x2a
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/4 p1, 0x6
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/4 p1, 0x7
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x36
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x1b
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    const/16 p1, 0x1a
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    return-void
+-.end method
+diff --git a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController.smali b/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController.smali
+index 4084da2d..2ca94dad 100644
+--- a/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController.smali
++++ b/smali_classes6/com/samsung/android/kmxservice/ai/privacy/PermissionDataController.smali
+@@ -3,450 +3,25 @@
+ .source "PermissionDataController.java"
+ 
+ 
+-# static fields
+-.field private static final blacklist DDR_4GB:I = 0x4
+-
+-.field public static final blacklist PROVIDER_URI:Landroid/net/Uri;
+-
+-.field private static final blacklist TAG:Ljava/lang/String; = "AI::PermissionDataController"
+-
+-
+-# instance fields
+-.field private final blacklist mContext:Landroid/content/Context;
+-
+-.field private blacklist mDDRSize:I
+-
+-.field private final blacklist mFlushExecutor:Ljava/util/concurrent/Executor;
+-
+-.field private blacklist mPermissionDatas:Ljava/util/Set;
+-    .annotation system Ldalvik/annotation/Signature;
+-        value = {
+-            "Ljava/util/Set<",
+-            "Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;",
+-            ">;"
+-        }
+-    .end annotation
+-.end field
+-
+-.field private final blacklist mPermissionGroupMap:Ljava/util/HashMap;
+-    .annotation system Ldalvik/annotation/Signature;
+-        value = {
+-            "Ljava/util/HashMap<",
+-            "Ljava/lang/Integer;",
+-            "Ljava/lang/Boolean;",
+-            ">;"
+-        }
+-    .end annotation
+-.end field
+-
+-.field private final blacklist mReadLock:Ljava/util/concurrent/locks/Lock;
+-
+-.field private final blacklist mWriterLock:Ljava/util/concurrent/locks/Lock;
+-
+-
+ # direct methods
+-.method static constructor blacklist <clinit>()V
+-    .locals 1
+-
+-    const-string v0, "content://com.samsung.android.kmxservice.ai.privacy/permission"
+-
+-    invoke-static {v0}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
+-
+-    move-result-object v0
+-
+-    sput-object v0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->PROVIDER_URI:Landroid/net/Uri;
+-
+-    return-void
+-.end method
+-
+ .method public constructor blacklist <init>(Landroid/content/Context;)V
+-    .locals 2
+-
+-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+-
+-    new-instance v0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;
+-
+-    invoke-direct {v0, p0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$2;-><init>(Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;)V
+-
+-    iput-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionGroupMap:Ljava/util/HashMap;
+-
+-    new-instance v0, Ljava/util/concurrent/locks/ReentrantReadWriteLock;
+-
+-    invoke-direct {v0}, Ljava/util/concurrent/locks/ReentrantReadWriteLock;-><init>()V
+-
+-    invoke-interface {v0}, Ljava/util/concurrent/locks/ReadWriteLock;->readLock()Ljava/util/concurrent/locks/Lock;
+-
+-    move-result-object v1
+-
+-    iput-object v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mReadLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {v0}, Ljava/util/concurrent/locks/ReadWriteLock;->writeLock()Ljava/util/concurrent/locks/Lock;
+-
+-    move-result-object v0
+-
+-    iput-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mWriterLock:Ljava/util/concurrent/locks/Lock;
+-
+-    iput-object p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mContext:Landroid/content/Context;
+-
+-    invoke-static {}, Ljava/util/concurrent/Executors;->newSingleThreadExecutor()Ljava/util/concurrent/ExecutorService;
+-
+-    move-result-object p1
+-
+-    iput-object p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mFlushExecutor:Ljava/util/concurrent/Executor;
+-
+-    new-instance p1, Ljava/util/HashSet;
+-
+-    invoke-direct {p1}, Ljava/util/HashSet;-><init>()V
+-
+-    iput-object p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionDatas:Ljava/util/Set;
+-
+-    const/4 p1, 0x0
+-
+-    iput p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mDDRSize:I
+-
+-    return-void
+-.end method
+-
+-.method private blacklist getDDRSize()V
+-    .locals 2
+-
+-    :try_start_0
+-    const-string/jumbo v0, "ro.boot.mDDRSize"
+-
+-    const-string v1, "0"
+-
+-    invoke-static {v0, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+-
+-    move-result v0
+-
+-    iput v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mDDRSize:I
+-    :try_end_0
+-    .catch Ljava/lang/NumberFormatException; {:try_start_0 .. :try_end_0} :catch_0
+-
+-    return-void
+-
+-    :catch_0
+-    move-exception p0
+-
+-    const-string v0, "AI::PermissionDataController"
+-
+-    invoke-virtual {p0}, Ljava/lang/NumberFormatException;->getMessage()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    return-void
+-.end method
+-
+-.method private blacklist isOpCodeEnable(I)Z
+     .locals 0
+ 
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionGroupMap:Ljava/util/HashMap;
+-
+-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p1
+-
+-    invoke-virtual {p0, p1}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+-
+-    move-result p0
+-
+-    return p0
+-.end method
+-
+-.method private blacklist pushPermissionDatas(Ljava/util/Iterator;)V
+-    .locals 3
+-    .annotation system Ldalvik/annotation/Signature;
+-        value = {
+-            "(",
+-            "Ljava/util/Iterator<",
+-            "Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;",
+-            ">;)V"
+-        }
+-    .end annotation
+-
+-    new-instance v0, Ljava/util/ArrayList;
+-
+-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+-
+-    :cond_0
+-    :goto_0
+-    invoke-interface {p1}, Ljava/util/Iterator;->hasNext()Z
+-
+-    move-result v1
+-
+-    if-eqz v1, :cond_1
+-
+-    invoke-interface {p1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+-
+-    move-result-object v1
+-
+-    check-cast v1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;
+-
+-    invoke-virtual {v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->toContentValues()Landroid/content/ContentValues;
+-
+-    move-result-object v2
+-
+-    invoke-virtual {v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;->getUid()I
+-
+-    move-result v1
+-
+-    invoke-static {v1}, Landroid/os/UserHandle;->getUserHandleForUid(I)Landroid/os/UserHandle;
+-
+-    move-result-object v1
+-
+-    invoke-virtual {v1}, Landroid/os/UserHandle;->semGetIdentifier()I
+-
+-    move-result v1
+-
+-    if-nez v1, :cond_0
+-
+-    invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+-
+-    goto :goto_0
+-
+-    :cond_1
+-    invoke-interface {v0}, Ljava/util/List;->size()I
+-
+-    move-result p1
+-
+-    if-lez p1, :cond_2
+-
+-    invoke-interface {v0}, Ljava/util/List;->size()I
+-
+-    move-result p1
+-
+-    new-array p1, p1, [Landroid/content/ContentValues;
+-
+-    invoke-interface {v0, p1}, Ljava/util/List;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
+-
+-    invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
+-
+-    move-result-wide v0
+-
+-    :try_start_0
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mContext:Landroid/content/Context;
+-
+-    invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+-
+-    move-result-object p0
+-
+-    sget-object v2, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->PROVIDER_URI:Landroid/net/Uri;
+-
+-    invoke-virtual {p0, v2, p1}, Landroid/content/ContentResolver;->bulkInsert(Landroid/net/Uri;[Landroid/content/ContentValues;)I
+-
+-    const-string p0, "AI::PermissionDataController"
+-
+-    const-string p1, "bulkInsert success"
+-
+-    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-    :try_end_0
+-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+-
+-    invoke-static {v0, v1}, Landroid/os/Binder;->restoreCallingIdentity(J)V
+-
+-    return-void
+-
+-    :catchall_0
+-    move-exception p0
+-
+-    goto :goto_1
+-
+-    :catch_0
+-    move-exception p0
+-
+-    :try_start_1
+-    invoke-virtual {p0}, Ljava/lang/Exception;->printStackTrace()V
+-    :try_end_1
+-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+-
+-    invoke-static {v0, v1}, Landroid/os/Binder;->restoreCallingIdentity(J)V
+-
+-    goto :goto_2
+-
+-    :goto_1
+-    invoke-static {v0, v1}, Landroid/os/Binder;->restoreCallingIdentity(J)V
+-
+-    throw p0
+-
+-    :cond_2
+-    :goto_2
+-    return-void
+-.end method
+-
+-.method private blacklist write(Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;)V
+-    .locals 1
+-
+-    :try_start_0
+-    iget-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mReadLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {v0}, Ljava/util/concurrent/locks/Lock;->lock()V
+-
+-    iget-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionDatas:Ljava/util/Set;
+-
+-    invoke-interface {v0, p1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+-    :try_end_0
+-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+-
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mReadLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {p0}, Ljava/util/concurrent/locks/Lock;->unlock()V
++    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+ 
+     return-void
+-
+-    :catchall_0
+-    move-exception p1
+-
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mReadLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {p0}, Ljava/util/concurrent/locks/Lock;->unlock()V
+-
+-    throw p1
+ .end method
+ 
+ 
+ # virtual methods
+ .method public blacklist flush()V
+-    .locals 3
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Ljava/io/IOException;
+-        }
+-    .end annotation
+-
+-    :try_start_0
+-    iget-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mWriterLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {v0}, Ljava/util/concurrent/locks/Lock;->lock()V
+-
+-    iget-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionDatas:Ljava/util/Set;
+-
+-    new-instance v1, Ljava/util/HashSet;
+-
+-    invoke-direct {v1}, Ljava/util/HashSet;-><init>()V
+-
+-    iput-object v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionDatas:Ljava/util/Set;
+-    :try_end_0
+-    .catchall {:try_start_0 .. :try_end_0} :catchall_1
+-
+-    iget-object v1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mWriterLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {v1}, Ljava/util/concurrent/locks/Lock;->unlock()V
+-
+-    if-eqz v0, :cond_1
+-
+-    :try_start_1
+-    const-string v1, "AI::PermissionDataController"
+-
+-    const-string v2, "flush start..."
+-
+-    invoke-static {v1, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+-
+-    move-result-object v1
+-
+-    invoke-direct {p0, v1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->pushPermissionDatas(Ljava/util/Iterator;)V
+-    :try_end_1
+-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+-
+-    goto :goto_0
+-
+-    :catchall_0
+-    move-exception p0
+-
+-    if-eqz v0, :cond_0
+-
+-    invoke-interface {v0}, Ljava/util/Set;->clear()V
+-
+-    :cond_0
+-    throw p0
+-
+-    :cond_1
+-    :goto_0
+-    if-eqz v0, :cond_2
+-
+-    invoke-interface {v0}, Ljava/util/Set;->clear()V
+-
+-    :cond_2
+-    return-void
+-
+-    :catchall_1
+-    move-exception v0
+-
+-    iget-object p0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mWriterLock:Ljava/util/concurrent/locks/Lock;
+-
+-    invoke-interface {p0}, Ljava/util/concurrent/locks/Lock;->unlock()V
+-
+-    throw v0
+-.end method
+-
+-.method public blacklist flushAsync()V
+-    .locals 2
+-
+-    iget-object v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mFlushExecutor:Ljava/util/concurrent/Executor;
+-
+-    new-instance v1, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$1;
+-
+-    invoke-direct {v1, p0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController$1;-><init>(Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;)V
+-
+-    invoke-interface {v0, v1}, Ljava/util/concurrent/Executor;->execute(Ljava/lang/Runnable;)V
++    .locals 0
+ 
+     return-void
+ .end method
+ 
+ .method public blacklist write(IILjava/lang/String;I)V
+-    .locals 2
+-
+-    iget v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mDDRSize:I
+-
+-    if-nez v0, :cond_0
+-
+-    invoke-direct {p0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->getDDRSize()V
+-
+-    :cond_0
+-    iget v0, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mDDRSize:I
+-
+-    if-lez v0, :cond_1
+-
+-    const/4 v1, 0x4
+-
+-    if-gt v0, v1, :cond_1
+-
+-    goto :goto_0
+-
+-    :cond_1
+-    invoke-direct {p0, p1}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->isOpCodeEnable(I)Z
+-
+-    move-result v0
+-
+-    if-eqz v0, :cond_2
+-
+-    new-instance v0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;
+-
+-    invoke-direct {v0, p1, p2, p3, p4}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;-><init>(IILjava/lang/String;I)V
+-
+-    invoke-direct {p0, v0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->write(Lcom/samsung/android/kmxservice/ai/privacy/PermissionData;)V
+-
+-    iget-object p1, p0, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->mPermissionDatas:Ljava/util/Set;
+-
+-    invoke-interface {p1}, Ljava/util/Set;->size()I
+-
+-    move-result p1
+-
+-    const/16 p2, 0x3e7
+-
+-    if-le p1, p2, :cond_2
+-
+-    invoke-virtual {p0}, Lcom/samsung/android/kmxservice/ai/privacy/PermissionDataController;->flushAsync()V
++    .locals 0
+ 
+-    :cond_2
+-    :goto_0
+     return-void
+ .end method
+diff --git a/smali_classes6/com/samsung/android/rune/CoreRune.smali b/smali_classes6/com/samsung/android/rune/CoreRune.smali
+index 567c3a6f..eae0c067 100644
+--- a/smali_classes6/com/samsung/android/rune/CoreRune.smali
++++ b/smali_classes6/com/samsung/android/rune/CoreRune.smali
+@@ -2633,7 +2633,7 @@
+     :goto_9
+     sput-boolean v0, Lcom/samsung/android/rune/CoreRune;->FW_WORKAROUND_RESPONSE_SPEED_LOW:Z
+ 
+-    const-string/jumbo v0, "ro.product.device"
++    const-string/jumbo v0, "ro.product.vendor.device"
+ 
+     invoke-static {v0}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
+ 
+@@ -3453,6 +3453,8 @@
+ 
+     move-result v1
+ 
++    const/4 v1, 0x1
++
+     sput-boolean v1, Lcom/samsung/android/rune/CoreRune;->FW_SUPPORT_APPLOCK:Z
+ 
+     sput-boolean v1, Lcom/samsung/android/rune/CoreRune;->FW_APPLOCK:Z
+@@ -4497,7 +4499,7 @@
+ 
+     if-eqz v0, :cond_3b
+ 
+-    const-string/jumbo v0, "ro.product.model"
++    const-string/jumbo v0, "ro.product.vendor.model"
+ 
+     invoke-static {v0}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
+ 
+diff --git a/smali_classes6/io/mesalabs/unica/CscFeatureHooks.smali b/smali_classes6/io/mesalabs/unica/CscFeatureHooks.smali
+new file mode 100644
+index 00000000..37d44bdc
+--- /dev/null
++++ b/smali_classes6/io/mesalabs/unica/CscFeatureHooks.smali
+@@ -0,0 +1,380 @@
++.class public final Lio/mesalabs/unica/CscFeatureHooks;
++.super Ljava/lang/Object;
++.source "CscFeatureHooks.java"
++
++
++# static fields
++.field private static final blacklist BOOLEAN_FEATURES:Ljava/util/HashMap;
++    .annotation system Ldalvik/annotation/Signature;
++        value = {
++            "Ljava/util/HashMap<",
++            "Ljava/lang/String;",
++            "Ljava/lang/Boolean;",
++            ">;"
++        }
++    .end annotation
++.end field
++
++.field private static final blacklist CAMERA_PACKAGE_NAME:Ljava/lang/String; = "com.sec.android.app.camera"
++
++.field private static final blacklist DEBUG:Z = false
++
++.field private static final blacklist INTEGER_FEATURES:Ljava/util/HashMap;
++    .annotation system Ldalvik/annotation/Signature;
++        value = {
++            "Ljava/util/HashMap<",
++            "Ljava/lang/String;",
++            "Ljava/lang/Integer;",
++            ">;"
++        }
++    .end annotation
++.end field
++
++.field private static final blacklist STRING_FEATURES:Ljava/util/HashMap;
++    .annotation system Ldalvik/annotation/Signature;
++        value = {
++            "Ljava/util/HashMap<",
++            "Ljava/lang/String;",
++            "Ljava/lang/String;",
++            ">;"
++        }
++    .end annotation
++.end field
++
++.field private static final blacklist TAG:Ljava/lang/String; = "CscFeatureHooks"
++
++
++# direct methods
++.method static constructor blacklist <clinit>()V
++    .locals 5
++
++    new-instance v0, Ljava/util/HashMap;
++
++    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
++
++    sput-object v0, Lio/mesalabs/unica/CscFeatureHooks;->BOOLEAN_FEATURES:Ljava/util/HashMap;
++
++    new-instance v1, Ljava/util/HashMap;
++
++    invoke-direct {v1}, Ljava/util/HashMap;-><init>()V
++
++    sput-object v1, Lio/mesalabs/unica/CscFeatureHooks;->STRING_FEATURES:Ljava/util/HashMap;
++
++    new-instance v2, Ljava/util/HashMap;
++
++    invoke-direct {v2}, Ljava/util/HashMap;-><init>()V
++
++    sput-object v2, Lio/mesalabs/unica/CscFeatureHooks;->INTEGER_FEATURES:Ljava/util/HashMap;
++
++    const-string v3, "CscFeature_Common_SupportPrivateMode"
++
++    sget-object v4, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
++
++    invoke-virtual {v0, v3, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v3, "CscFeature_Setting_EnableHwVersionDisplay"
++
++    sget-object v4, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
++
++    invoke-virtual {v0, v3, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v3, "CscFeature_Wifi_SupportBlockSkipForSetupWizard"
++
++    sget-object v4, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
++
++    invoke-virtual {v0, v3, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v3, "CscFeature_Wifi_SupportNetworkConnectionsRequired"
++
++    sget-object v4, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
++
++    invoke-virtual {v0, v3, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v0, "CscFeature_Common_ConfigSvcProviderForUnknownNumber"
++
++    const-string v3, "whitepages,whitepages,off"
++
++    invoke-virtual {v1, v0, v3}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v0, "CscFeature_Common_ConfigYuva"
++
++    const-string v3, ""
++
++    invoke-virtual {v1, v0, v3}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v0, "CscFeature_VoiceCall_ConfigRecording"
++
++    const-string v4, "RecordingAllowed"
++
++    invoke-virtual {v1, v0, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const-string v0, "CscFeature_SmartManager_ConfigSubFeatures"
++
++    invoke-virtual {v1, v0, v3}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    const/4 v0, 0x0
++
++    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++
++    move-result-object v0
++
++    const-string v1, "CscFeature_Setting_ConfigTypeHelp"
++
++    invoke-virtual {v2, v1, v0}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    return-void
++.end method
++
++.method private constructor blacklist <init>()V
++    .locals 0
++
++    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
++
++    return-void
++.end method
++
++.method private static blacklist dlog(Ljava/lang/String;)V
++    .locals 0
++
++    return-void
++.end method
++
++.method public static blacklist onGetBoolean(Ljava/lang/String;)Ljava/lang/Boolean;
++    .locals 3
++
++    sget-object v0, Lio/mesalabs/unica/CscFeatureHooks;->BOOLEAN_FEATURES:Ljava/util/HashMap;
++
++    invoke-virtual {v0, p0}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
++
++    move-result v1
++
++    if-eqz v1, :cond_0
++
++    invoke-virtual {v0, p0}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
++
++    move-result-object v0
++
++    check-cast v0, Ljava/lang/Boolean;
++
++    goto :goto_0
++
++    :cond_0
++    const/4 v0, 0x0
++
++    :goto_0
++    if-eqz v0, :cond_1
++
++    new-instance v1, Ljava/lang/StringBuilder;
++
++    const-string v2, "Spoofing \""
++
++    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\" to \""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++
++    move-result-object p0
++
++    invoke-static {p0}, Lio/mesalabs/unica/CscFeatureHooks;->dlog(Ljava/lang/String;)V
++
++    :cond_1
++    return-object v0
++.end method
++
++.method public static blacklist onGetCountryCode()Ljava/lang/String;
++    .locals 3
++
++    invoke-static {}, Landroid/app/ActivityThread;->currentPackageName()Ljava/lang/String;
++
++    move-result-object v0
++
++    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
++
++    move-result v1
++
++    if-nez v1, :cond_0
++
++    const-string v1, "com.sec.android.app.camera"
++
++    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_0
++
++    const-string v0, "USA"
++
++    goto :goto_0
++
++    :cond_0
++    const/4 v0, 0x0
++
++    :goto_0
++    if-eqz v0, :cond_1
++
++    new-instance v1, Ljava/lang/StringBuilder;
++
++    const-string v2, "Spoofing SemSystemProperties.getCountryCode() to \""
++
++    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object v1
++
++    const-string v2, "\""
++
++    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object v1
++
++    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++
++    move-result-object v1
++
++    invoke-static {v1}, Lio/mesalabs/unica/CscFeatureHooks;->dlog(Ljava/lang/String;)V
++
++    :cond_1
++    return-object v0
++.end method
++
++.method public static blacklist onGetInt(Ljava/lang/String;)Ljava/lang/Integer;
++    .locals 3
++
++    sget-object v0, Lio/mesalabs/unica/CscFeatureHooks;->INTEGER_FEATURES:Ljava/util/HashMap;
++
++    invoke-virtual {v0, p0}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
++
++    move-result v1
++
++    if-eqz v1, :cond_0
++
++    invoke-virtual {v0, p0}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
++
++    move-result-object v0
++
++    check-cast v0, Ljava/lang/Integer;
++
++    goto :goto_0
++
++    :cond_0
++    const/4 v0, 0x0
++
++    :goto_0
++    if-eqz v0, :cond_1
++
++    new-instance v1, Ljava/lang/StringBuilder;
++
++    const-string v2, "Spoofing \""
++
++    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\" to \""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++
++    move-result-object p0
++
++    invoke-static {p0}, Lio/mesalabs/unica/CscFeatureHooks;->dlog(Ljava/lang/String;)V
++
++    :cond_1
++    return-object v0
++.end method
++
++.method public static blacklist onGetString(Ljava/lang/String;)Ljava/lang/String;
++    .locals 3
++
++    sget-object v0, Lio/mesalabs/unica/CscFeatureHooks;->STRING_FEATURES:Ljava/util/HashMap;
++
++    invoke-virtual {v0, p0}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
++
++    move-result v1
++
++    if-eqz v1, :cond_0
++
++    invoke-virtual {v0, p0}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
++
++    move-result-object v0
++
++    check-cast v0, Ljava/lang/String;
++
++    goto :goto_0
++
++    :cond_0
++    const/4 v0, 0x0
++
++    :goto_0
++    if-eqz v0, :cond_1
++
++    new-instance v1, Ljava/lang/StringBuilder;
++
++    const-string v2, "Spoofing \""
++
++    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\" to \""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++
++    move-result-object p0
++
++    invoke-static {p0}, Lio/mesalabs/unica/CscFeatureHooks;->dlog(Ljava/lang/String;)V
++
++    :cond_1
++    return-object v0
++.end method
+diff --git a/smali_classes6/io/mesalabs/unica/KnoxPatchHooks.smali b/smali_classes6/io/mesalabs/unica/KnoxPatchHooks.smali
+new file mode 100644
+index 00000000..8b68148a
+--- /dev/null
++++ b/smali_classes6/io/mesalabs/unica/KnoxPatchHooks.smali
+@@ -0,0 +1,269 @@
++.class public final Lio/mesalabs/unica/KnoxPatchHooks;
++.super Ljava/lang/Object;
++.source "KnoxPatchHooks.java"
++
++
++# static fields
++.field private static final blacklist DEBUG:Z = false
++
++.field private static final blacklist FIND_MY_MOBILE_PACKAGE_NAME:Ljava/lang/String; = "com.samsung.android.fmm"
++
++.field private static final blacklist SAMSUNG_CLOUD_PLATFORM_MANAGER_PACKAGE_NAME:Ljava/lang/String; = "com.samsung.android.scpm"
++
++.field private static final blacklist SAMSUNG_HEALTH_PACKAGE_NAME:Ljava/lang/String; = "com.sec.android.app.shealth"
++
++.field private static final blacklist SAMSUNG_TV_PLUS_PACKAGE_NAME:Ljava/lang/String; = "com.samsung.android.tvplus"
++
++.field private static final blacklist TAG:Ljava/lang/String; = "KnoxPatchHooks"
++
++.field private static volatile blacklist sPackageName:Ljava/lang/String;
++
++.field private static volatile blacklist sSpoofBuildTypeProp:Z
++
++.field private static volatile blacklist sSpoofKeystoreProp:Z
++
++.field private static volatile blacklist sSpoofKnox:Z
++
++
++# direct methods
++.method private constructor blacklist <init>()V
++    .locals 0
++
++    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
++
++    return-void
++.end method
++
++.method private static blacklist dlog(Ljava/lang/String;)V
++    .locals 0
++
++    return-void
++.end method
++
++.method public static blacklist init(Landroid/content/Context;)V
++    .locals 5
++
++    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
++
++    move-result-object v0
++
++    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
++
++    move-result v1
++
++    if-eqz v1, :cond_0
++
++    return-void
++
++    :cond_0
++    sput-object v0, Lio/mesalabs/unica/KnoxPatchHooks;->sPackageName:Ljava/lang/String;
++
++    const/4 v1, 0x1
++
++    const/4 v2, 0x0
++
++    :try_start_0
++    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
++
++    move-result-object p0
++
++    invoke-virtual {p0, v0, v2}, Landroid/content/pm/PackageManager;->getApplicationInfo(Ljava/lang/String;I)Landroid/content/pm/ApplicationInfo;
++
++    move-result-object p0
++
++    iget p0, p0, Landroid/content/pm/ApplicationInfo;->flags:I
++
++    and-int/lit16 p0, p0, 0x81
++
++    if-nez p0, :cond_1
++
++    move p0, v1
++
++    goto :goto_0
++
++    :cond_1
++    move p0, v2
++
++    :goto_0
++    sput-boolean p0, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofKnox:Z
++    :try_end_0
++    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
++
++    goto :goto_1
++
++    :catch_0
++    move-exception p0
++
++    new-instance v3, Ljava/lang/StringBuilder;
++
++    const-string v4, "sSpoofKnox = false; "
++
++    invoke-direct {v3, v4}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
++
++    move-result-object p0
++
++    invoke-virtual {p0}, Ljava/lang/Class;->getName()Ljava/lang/String;
++
++    move-result-object p0
++
++    invoke-virtual {v3, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++
++    move-result-object p0
++
++    invoke-static {p0}, Lio/mesalabs/unica/KnoxPatchHooks;->dlog(Ljava/lang/String;)V
++
++    sput-boolean v2, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofKnox:Z
++
++    :goto_1
++    const-string p0, "com.samsung.android.scpm"
++
++    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result p0
++
++    sput-boolean p0, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofBuildTypeProp:Z
++
++    const-string p0, "com.samsung.android.fmm"
++
++    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result p0
++
++    if-nez p0, :cond_3
++
++    const-string p0, "com.sec.android.app.shealth"
++
++    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result p0
++
++    if-nez p0, :cond_3
++
++    const-string p0, "com.samsung.android.tvplus"
++
++    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result p0
++
++    if-eqz p0, :cond_2
++
++    goto :goto_2
++
++    :cond_2
++    move v1, v2
++
++    :cond_3
++    :goto_2
++    sput-boolean v1, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofKeystoreProp:Z
++
++    return-void
++.end method
++
++.method public static blacklist onEDMGetAPILevel()I
++    .locals 1
++
++    sget-boolean v0, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofKnox:Z
++
++    if-nez v0, :cond_0
++
++    const-string v0, "39"
++
++    invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
++
++    move-result v0
++
++    return v0
++
++    :cond_0
++    const-string v0, "Spoofing EnterpriseDeviceManager.getAPILevel()"
++
++    invoke-static {v0}, Lio/mesalabs/unica/KnoxPatchHooks;->dlog(Ljava/lang/String;)V
++
++    const/4 v0, -0x1
++
++    return v0
++.end method
++
++.method public static blacklist onSystemPropertiesGet(Ljava/lang/String;)Ljava/lang/String;
++    .locals 3
++
++    const-string v0, "ro.build.type"
++
++    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_0
++
++    sget-boolean v0, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofBuildTypeProp:Z
++
++    if-eqz v0, :cond_1
++
++    const-string v0, "eng"
++
++    goto :goto_0
++
++    :cond_0
++    const-string v0, "ro.security.keystore.keytype"
++
++    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_1
++
++    sget-boolean v0, Lio/mesalabs/unica/KnoxPatchHooks;->sSpoofKeystoreProp:Z
++
++    if-eqz v0, :cond_1
++
++    const-string v0, ""
++
++    goto :goto_0
++
++    :cond_1
++    const/4 v0, 0x0
++
++    :goto_0
++    if-eqz v0, :cond_2
++
++    new-instance v1, Ljava/lang/StringBuilder;
++
++    const-string v2, "Spoofing \""
++
++    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
++
++    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\" prop to \""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    const-string v1, "\""
++
++    invoke-virtual {p0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
++
++    move-result-object p0
++
++    invoke-virtual {p0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
++
++    move-result-object p0
++
++    invoke-static {p0}, Lio/mesalabs/unica/KnoxPatchHooks;->dlog(Ljava/lang/String;)V
++
++    :cond_2
++    return-object v0
++.end method
